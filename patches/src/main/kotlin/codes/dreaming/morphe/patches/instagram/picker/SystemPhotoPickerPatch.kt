@@ -1,6 +1,7 @@
 package codes.dreaming.morphe.patches.instagram.picker
 
 import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
+import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLabels
 import app.morphe.patcher.extensions.InstructionExtensions.getInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.instructions
@@ -13,6 +14,7 @@ import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
 import com.android.tools.smali.dexlib2.iface.reference.FieldReference
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
+import com.android.tools.smali.dexlib2.iface.reference.TypeReference
 
 private const val EXTENSION_CLASS =
     "Lcodes/dreaming/morphe/extension/instagram/SystemPhotoPickerPatch;"
@@ -73,6 +75,80 @@ val systemPhotoPickerPatch = bytecodePatch(
             """,
             ExternalLabel("original", factory.getInstruction(0)),
         )
+
+        // The album picker draws the entry with Instagram's Google Photos label and
+        // logo. Replace both with the photo picker label and a neutral icon.
+        AlbumPickerEntryListFingerprint.let { fingerprint ->
+            val method = fingerprint.method
+            val idIndex = fingerprint.instructionMatches[0].index
+            val createIndex = (idIndex + 1 until method.instructions.size).firstOrNull {
+                method.getInstruction(it).opcode == Opcode.NEW_INSTANCE
+            } ?: throw PatchException("No album picker entry created after the id ${ALBUM_PICKER_EXTERNAL_ENTRY_ID}")
+            val albumEntryType =
+                (method.getInstruction<ReferenceInstruction>(createIndex).reference as TypeReference).type
+
+            fun fieldPutIndex(fieldType: String, definingClass: String? = null) =
+                (createIndex + 1 until method.instructions.size).firstOrNull { index ->
+                    val instruction = method.getInstruction(index)
+                    if (instruction.opcode != Opcode.IPUT_OBJECT) return@firstOrNull false
+                    val field = (instruction as ReferenceInstruction).reference as FieldReference
+                    field.type == fieldType && (definingClass == null || field.definingClass == definingClass)
+                } ?: throw PatchException("$albumEntryType has no $fieldType store after it is created")
+
+            val labelIndex = fieldPutIndex("Ljava/lang/String;", albumEntryType)
+            val iconIndex = fieldPutIndex("Ljava/lang/Integer;")
+
+            // Insert at the later index first so the earlier index stays valid.
+            listOf(labelIndex, iconIndex).sortedDescending().forEach { index ->
+                val register = method.getInstruction<OneRegisterInstruction>(index).registerA
+                val call = if (index == labelIndex) {
+                    "invoke-static { }, $EXTENSION_CLASS->getPickerLabel()Ljava/lang/String;"
+                } else {
+                    "invoke-static/range { v$register .. v$register }, " +
+                        "$EXTENSION_CLASS->getPickerIconRes(Ljava/lang/Integer;)Ljava/lang/Integer;"
+                }
+                method.addInstructions(
+                    index,
+                    """
+                        $call
+                        move-result-object v$register
+                    """,
+                )
+            }
+        }
+
+        // The album menu of the stories and reels gallery takes the label from the
+        // factory entry but draws the Google Photos logo. Replace the logo.
+        val albumMenuCall = AlbumMenuGooglePhotosFlagFingerprint.matchAllOrNull().orEmpty().firstOrNull()
+            ?.let { it.instructionMatches[1].getInstruction<ReferenceInstruction>().reference as MethodReference }
+            ?: throw PatchException("No album menu call found")
+        val albumMenuIcon = mutableClassDefBy(albumMenuCall.definingClass).methods.firstNotNullOfOrNull { method ->
+            val instructions = method.implementation?.instructions?.toList() ?: return@firstNotNullOfOrNull null
+            val factoryCall = instructions.indexOfFirst {
+                ((it as? ReferenceInstruction)?.reference as? MethodReference)?.let { ref ->
+                    ref.definingClass == factory.definingClass && ref.name == factory.name
+                } == true
+            }
+            if (factoryCall < 0) return@firstNotNullOfOrNull null
+            val drawableCall = (factoryCall + 1 until instructions.size).firstOrNull {
+                val ref = (instructions[it] as? ReferenceInstruction)?.reference as? MethodReference
+                ref?.definingClass == "Landroid/content/Context;" && ref.name == "getDrawable"
+            } ?: return@firstNotNullOfOrNull null
+            method to drawableCall + 1
+        } ?: throw PatchException("${albumMenuCall.definingClass} has no Context.getDrawable call after the factory call")
+        albumMenuIcon.let { (method, resultIndex) ->
+            if (method.getInstruction(resultIndex).opcode != Opcode.MOVE_RESULT_OBJECT) {
+                throw PatchException("Context.getDrawable result is not stored")
+            }
+            val register = method.getInstruction<OneRegisterInstruction>(resultIndex).registerA
+            method.addInstructions(
+                resultIndex + 1,
+                """
+                    invoke-static/range { v$register .. v$register }, $EXTENSION_CLASS->getPickerIconDrawable(Landroid/graphics/drawable/Drawable;)Landroid/graphics/drawable/Drawable;
+                    move-result-object v$register
+                """,
+            )
+        }
 
         // Instagram hides the entry behind a MobileConfig flag. The flag reaches
         // the album picker config as the last constructor argument.
