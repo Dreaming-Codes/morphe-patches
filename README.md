@@ -29,13 +29,15 @@ Open this link on your phone to add the bundle as a patch source: https://morphe
 
 ## Use the Instagram photo picker patch
 
-The **Use system photo picker** patch adds a **Photo picker** entry to the album list of the Instagram DM gallery, the stories and reels creation gallery, and the full-screen creation gallery. The entry opens the Android system photo picker, which also lists media from cloud media providers such as [immich-cloud-media](https://github.com/Dreaming-Codes/immich-cloud-media). Instagram copies the picked file into its own storage before it sends it.
+The **Use system photo picker** patch adds a **Photo picker** entry to the Instagram album lists, next to the **Recents**, **Photos**, and **Videos** chips of the **Select album** sheet and in the album menu of the creation gallery. The entry opens the Android system photo picker, which also lists media from cloud media providers such as [immich-cloud-media](https://github.com/Dreaming-Codes/immich-cloud-media). Instagram copies the picked file into its own storage before it sends it.
 
 The patch has these limits:
 
-- It covers only the galleries that already have launch and import code for an external picker. Those are the DM gallery, the stories and reels creation gallery, and the full-screen creation gallery. Other galleries, such as the profile picture gallery and the carousel editor, do not show the entry.
+- The entry works in the post gallery and in the DM gallery, which already have import code for an external picker.
+- The carousel editor also shows the entry, but it has no import code, so the entry opens an empty album there.
+- The profile picture gallery does not show the entry.
 - It targets Instagram 447.0.0.55.81.
-- The stories and reels entry works on a Pixel. The other galleries have only been checked in the patched bytecode.
+- The post gallery entry works on a Pixel. The DM gallery entry has only been checked in the patched bytecode.
 - Instagram imports a picked item only if the provider reports a known MIME type, such as `image/jpeg` or `video/mp4`.
 
 This bundle does not handle the signature check that Instagram runs after a re-sign. Use it together with [Piko](https://github.com/crimera/piko), which does. To patch Instagram:
