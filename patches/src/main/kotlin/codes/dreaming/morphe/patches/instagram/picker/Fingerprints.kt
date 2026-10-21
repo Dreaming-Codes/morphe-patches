@@ -23,40 +23,32 @@ object ExternalGalleryEntryFingerprint : Fingerprint(
 )
 
 /**
- * The album picker fragment rebuilds its config from fragment arguments.
- * In 447.0.0.55.81 this is `X.Q4c.onViewCreated`, which calls
- * `new X.Umv(String, int, boolean, boolean, boolean, boolean)`.
- * The last boolean is "args_can_show_google_photos_entry_point".
+ * Any method that checks the MobileConfig boolean [flag].
  */
-object AlbumPickerConfigFingerprint : Fingerprint(
-    name = "onViewCreated",
-    parameters = listOf("Landroid/view/View;", "Landroid/os/Bundle;"),
+class MobileConfigFlagFingerprint(flag: Long) : Fingerprint(
     filters = listOf(
-        string("args_can_show_google_photos_entry_point"),
-        methodCall(
-            name = "<init>",
-            parameters = listOf("Ljava/lang/String;", "I", "Z", "Z", "Z", "Z"),
-        ),
+        literal(flag),
     ),
 )
 
 /**
- * The creation gallery (stories and reels) starts an external picker intent here.
- * In 447.0.0.55.81 this is `X.ES8.A05(Intent, X.ES8)`. The second parameter is
- * the creation gallery controller.
+ * Builds the album list of the album picker. In 447.0.0.55.81 this is
+ * `X.GZ3.A01(X.GZ3)`. The external gallery entry has the id -11, and its
+ * label and icon are Instagram resources, not the fields of the factory entry.
  */
-object CreationGalleryLaunchFingerprint : Fingerprint(
+object AlbumPickerEntryListFingerprint : Fingerprint(
     accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC, AccessFlags.FINAL),
     returnType = "V",
-    parameters = listOf("Landroid/content/Intent;", "L"),
-    strings = listOf("CreationGalleryController_external_media_source_not_found"),
+    strings = listOf("Meta View"),
+    filters = listOf(
+        literal(ALBUM_PICKER_EXTERNAL_ENTRY_ID),
+    ),
 )
 
 /**
  * Opens the album menu and passes a Google Photos callback only if a
- * MobileConfig flag is on. In 447.0.0.55.81 the creation gallery does this in
- * `X.PXT.G87`, and the DM gallery does it in `X.E0b.A05`. The patch picks the
- * match that reads a field of the creation gallery controller.
+ * MobileConfig flag is on. In 447.0.0.55.81 the stories and reels gallery does
+ * this in `X.PXT.G87`, and the full-screen creation gallery does it in `X.E0b.A05`.
  */
 object AlbumMenuGooglePhotosFlagFingerprint : Fingerprint(
     filters = listOf(
@@ -73,5 +65,13 @@ object AlbumMenuGooglePhotosFlagFingerprint : Fingerprint(
         ),
     ),
 )
+
+internal const val ALBUM_PICKER_EXTERNAL_ENTRY_ID = -11L
+
+/**
+ * Gates the external gallery entry in the DM media picker. In 447.0.0.55.81 the
+ * album menu checks it in `X.OY2` and the album picker config in `X.ZdW`.
+ */
+internal const val DM_GOOGLE_PHOTOS_ENTRY_FLAG = 36327258591351633L
 
 internal const val GOOGLE_PHOTOS_ENTRY_FLAG = 36318084541522952L
