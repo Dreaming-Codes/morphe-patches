@@ -1,3 +1,9 @@
+## [1.0.0-dev.2](https://github.com/Dreaming-Codes/morphe-patches/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2026-10-21)
+
+### ✨ New Features
+
+* **Instagram:** Show the system photo picker entry in the stories and reels gallery ([bd3634b](https://github.com/Dreaming-Codes/morphe-patches/commit/bd3634bea3e7f6c900eeae7f5c7d4dd6886dd34e))
+
 ## 1.0.0-dev.1 (2026-10-21)
 
 ### ✨ New Features

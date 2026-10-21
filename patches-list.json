@@ -1,10 +1,10 @@
 {
   "NOTE": "Do NOT manually edit this file. This file is automatically updated when semantic release (release.yml) runs. Manually editing this file can break your releases and break third party tools that use this file.",
-  "version": "1.0.0-dev.1",
+  "version": "1.0.0-dev.2",
   "patches": [
     {
       "name": "Use system photo picker",
-      "description": "Adds an entry to the DM gallery album list that opens the Android system photo picker. The picker also shows media from cloud media providers such as Immich.",
+      "description": "Adds an entry to the DM, stories, and reels gallery album lists that opens the Android system photo picker. The picker also shows media from cloud media providers such as Immich.",
       "default": true,
       "category": null,
       "compatiblePackages": [
