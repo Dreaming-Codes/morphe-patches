@@ -1,3 +1,9 @@
+## [1.0.0-dev.3](https://github.com/Dreaming-Codes/morphe-patches/compare/v1.0.0-dev.2...v1.0.0-dev.3) (2026-10-21)
+
+### 🐛 Bug Fixes
+
+* **Instagram:** Show the photo picker entry in every gallery that can import it ([#4](https://github.com/Dreaming-Codes/morphe-patches/issues/4)) ([a9d686f](https://github.com/Dreaming-Codes/morphe-patches/commit/a9d686f6d8b30fee941f5a6c091c687db42a3105))
+
 ## [1.0.0-dev.2](https://github.com/Dreaming-Codes/morphe-patches/compare/v1.0.0-dev.1...v1.0.0-dev.2) (2026-10-21)
 
 ### ✨ New Features

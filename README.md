@@ -9,7 +9,7 @@ Open this link on your phone to add the bundle as a patch source: https://morphe
 ## Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.0-dev.2](https://github.com/Dreaming-Codes/morphe-patches/releases/tag/v1.0.0-dev.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;1 patches total
+> **[v1.0.0-dev.3](https://github.com/Dreaming-Codes/morphe-patches/releases/tag/v1.0.0-dev.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;1 patches total
 <details open>
 <summary>📦 Instagram&nbsp;&nbsp;•&nbsp;&nbsp;1 patch</summary>
 <br>
@@ -21,7 +21,7 @@ Open this link on your phone to add the bundle as a patch source: https://morphe
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Use system photo picker](#use-system-photo-picker) | Adds an entry to the DM, stories, and reels gallery album lists that opens the Android system photo picker. The picker also shows media from cloud media providers such as Immich. |  |
+| [Use system photo picker](#use-system-photo-picker) | Adds an entry to the DM, stories, reels, and full-screen creation gallery album lists that opens the Android system photo picker. The picker also shows media from cloud media providers such as Immich. |  |
 
 </details>
 
