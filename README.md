@@ -9,8 +9,21 @@ Open this link on your phone to add the bundle as a patch source: https://morphe
 ## Patches
 
 <!-- PATCHES_START EXPANDED -->
+> **[v1.0.0-dev.1](https://github.com/Dreaming-Codes/morphe-patches/releases/tag/v1.0.0-dev.1)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;1 patches total
+<details open>
+<summary>📦 Instagram&nbsp;&nbsp;•&nbsp;&nbsp;1 patch</summary>
+<br>
 
-The patch list appears here after the first release.
+**🎯 Supported versions:**
+
+| 447.0.0.55.81 |
+| :---: |
+
+| 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
+|----------|----------------|-----------|
+| [Use system photo picker](#use-system-photo-picker) | Adds an entry to the DM gallery album list that opens the Android system photo picker. The picker also shows media from cloud media providers such as Immich. |  |
+
+</details>
 
 <!-- PATCHES_END -->
 
