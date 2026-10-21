@@ -24,7 +24,7 @@ private const val EXTENSION_CLASS =
 @Suppress("unused")
 val systemPhotoPickerPatch = bytecodePatch(
     name = "Use system photo picker",
-    description = "Adds an entry to the DM, stories, reels, and full-screen creation gallery album lists that opens the Android system photo picker. " +
+    description = "Adds an entry to the post and DM gallery album lists that opens the Android system photo picker. " +
         "The picker also shows media from cloud media providers such as Immich.",
     default = true,
 ) {
@@ -152,10 +152,19 @@ val systemPhotoPickerPatch = bytecodePatch(
             )
         }
 
-        // The DM media picker offers the entry only if a MobileConfig flag is on.
-        // The flag gates both DM album lists, the album picker and the album menu.
-        // Other album picker hosts have no launch or import code for the entry,
-        // so the patch leaves their config alone.
+        // Every album picker host passes the entry gate as the last argument of the
+        // album picker config. The post gallery host and the DM album picker take
+        // the entry from there, so force it on in the constructor.
+        val configInit = AlbumPickerConfigFingerprint.instructionMatches[1]
+            .getInstruction<ReferenceInstruction>().reference as MethodReference
+        val configConstructor = mutableClassDefBy(configInit.definingClass).methods.single {
+            it.name == "<init>" &&
+                it.parameterTypes.map(CharSequence::toString) == configInit.parameterTypes.map(CharSequence::toString)
+        }
+        configConstructor.addInstruction(0, "const/16 p6, 0x1")
+
+        // The DM media picker also gates its album menu callback behind a
+        // MobileConfig flag. Force every check of it.
         val dmFlagChecks = MobileConfigFlagFingerprint(DM_GOOGLE_PHOTOS_ENTRY_FLAG).matchAllOrNull().orEmpty()
             .sumOf { forceMobileConfigFlag(it.method, DM_GOOGLE_PHOTOS_ENTRY_FLAG) }
         if (dmFlagChecks == 0) throw PatchException("No check of the DM gallery flag found")

@@ -32,6 +32,24 @@ class MobileConfigFlagFingerprint(flag: Long) : Fingerprint(
 )
 
 /**
+ * The album picker fragment rebuilds its config from fragment arguments.
+ * In 447.0.0.55.81 this is `X.Q4c.onViewCreated`, which calls
+ * `new X.Umv(String, int, boolean, boolean, boolean, boolean)`.
+ * The last boolean is "args_can_show_google_photos_entry_point".
+ */
+object AlbumPickerConfigFingerprint : Fingerprint(
+    name = "onViewCreated",
+    parameters = listOf("Landroid/view/View;", "Landroid/os/Bundle;"),
+    filters = listOf(
+        string("args_can_show_google_photos_entry_point"),
+        methodCall(
+            name = "<init>",
+            parameters = listOf("Ljava/lang/String;", "I", "Z", "Z", "Z", "Z"),
+        ),
+    ),
+)
+
+/**
  * Builds the album list of the album picker. In 447.0.0.55.81 this is
  * `X.GZ3.A01(X.GZ3)`. The external gallery entry has the id -11, and its
  * label and icon are Instagram resources, not the fields of the factory entry.
