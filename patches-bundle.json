@@ -1,7 +1,7 @@
 {
-  "created_at": "",
-  "description": "",
-  "download_url": "",
+  "created_at": "2026-10-21T17:47:21",
+  "description": "## 1.0.0-dev.1 (2026-10-21)\n\n### ✨ New Features\n\n* **Instagram:** Add a system photo picker entry to the album list ([5c7a147](https://github.com/Dreaming-Codes/morphe-patches/commit/5c7a14710cf3aaff31324027898679738b115fa4))\n* **Instagram:** Show the system photo picker entry in the DM gallery ([2869417](https://github.com/Dreaming-Codes/morphe-patches/commit/28694170d5d0a0fba04e7c514619cf7290458ef0))",
+  "download_url": "https://github.com/Dreaming-Codes/morphe-patches/releases/download/v1.0.0-dev.1/patches-1.0.0-dev.1.mpp",
   "signature_download_url": "",
-  "version": ""
+  "version": "1.0.0-dev.1"
 }
