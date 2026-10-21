@@ -1,5 +1,6 @@
 package codes.dreaming.morphe.patches.instagram.picker
 
+import app.morphe.patcher.extensions.InstructionExtensions.addInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructionsWithLabels
 import app.morphe.patcher.extensions.InstructionExtensions.getInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.instructions
@@ -70,5 +71,15 @@ val systemPhotoPickerPatch = bytecodePatch(
             """,
             ExternalLabel("original", factory.getInstruction(0)),
         )
+
+        // Instagram hides the entry behind a MobileConfig flag. The flag reaches
+        // the album picker config as the last constructor argument.
+        val configInit = AlbumPickerConfigFingerprint.instructionMatches[1]
+            .getInstruction<ReferenceInstruction>().reference as MethodReference
+        val configConstructor = mutableClassDefBy(configInit.definingClass).methods.single {
+            it.name == "<init>" &&
+                it.parameterTypes.map(CharSequence::toString) == configInit.parameterTypes.map(CharSequence::toString)
+        }
+        configConstructor.addInstruction(0, "const/16 p6, 0x1")
     }
 }
