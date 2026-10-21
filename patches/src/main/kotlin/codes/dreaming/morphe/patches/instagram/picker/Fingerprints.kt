@@ -23,20 +23,11 @@ object ExternalGalleryEntryFingerprint : Fingerprint(
 )
 
 /**
- * The album picker fragment rebuilds its config from fragment arguments.
- * In 447.0.0.55.81 this is `X.Q4c.onViewCreated`, which calls
- * `new X.Umv(String, int, boolean, boolean, boolean, boolean)`.
- * The last boolean is "args_can_show_google_photos_entry_point".
+ * Any method that checks the MobileConfig boolean [flag].
  */
-object AlbumPickerConfigFingerprint : Fingerprint(
-    name = "onViewCreated",
-    parameters = listOf("Landroid/view/View;", "Landroid/os/Bundle;"),
+class MobileConfigFlagFingerprint(flag: Long) : Fingerprint(
     filters = listOf(
-        string("args_can_show_google_photos_entry_point"),
-        methodCall(
-            name = "<init>",
-            parameters = listOf("Ljava/lang/String;", "I", "Z", "Z", "Z", "Z"),
-        ),
+        literal(flag),
     ),
 )
 
@@ -89,5 +80,11 @@ object AlbumMenuGooglePhotosFlagFingerprint : Fingerprint(
 )
 
 internal const val ALBUM_PICKER_EXTERNAL_ENTRY_ID = -11L
+
+/**
+ * Gates the external gallery entry in the DM media picker. In 447.0.0.55.81 the
+ * album menu checks it in `X.OY2` and the album picker config in `X.ZdW`.
+ */
+internal const val DM_GOOGLE_PHOTOS_ENTRY_FLAG = 36327258591351633L
 
 internal const val GOOGLE_PHOTOS_ENTRY_FLAG = 36318084541522952L

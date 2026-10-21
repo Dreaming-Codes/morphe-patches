@@ -7,11 +7,13 @@ import app.morphe.patcher.extensions.InstructionExtensions.getInstruction
 import app.morphe.patcher.extensions.InstructionExtensions.instructions
 import app.morphe.patcher.patch.PatchException
 import app.morphe.patcher.patch.bytecodePatch
+import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import app.morphe.patcher.util.smali.ExternalLabel
 import codes.dreaming.morphe.patches.instagram.Constants.COMPATIBILITY_INSTAGRAM
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.WideLiteralInstruction
 import com.android.tools.smali.dexlib2.iface.reference.FieldReference
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 import com.android.tools.smali.dexlib2.iface.reference.TypeReference
@@ -150,15 +152,13 @@ val systemPhotoPickerPatch = bytecodePatch(
             )
         }
 
-        // Instagram hides the entry behind a MobileConfig flag. The flag reaches
-        // the album picker config as the last constructor argument.
-        val configInit = AlbumPickerConfigFingerprint.instructionMatches[1]
-            .getInstruction<ReferenceInstruction>().reference as MethodReference
-        val configConstructor = mutableClassDefBy(configInit.definingClass).methods.single {
-            it.name == "<init>" &&
-                it.parameterTypes.map(CharSequence::toString) == configInit.parameterTypes.map(CharSequence::toString)
-        }
-        configConstructor.addInstruction(0, "const/16 p6, 0x1")
+        // The DM media picker offers the entry only if a MobileConfig flag is on.
+        // The flag gates both DM album lists, the album picker and the album menu.
+        // Other album picker hosts have no launch or import code for the entry,
+        // so the patch leaves their config alone.
+        val dmFlagChecks = MobileConfigFlagFingerprint(DM_GOOGLE_PHOTOS_ENTRY_FLAG).matchAllOrNull().orEmpty()
+            .sumOf { forceMobileConfigFlag(it.method, DM_GOOGLE_PHOTOS_ENTRY_FLAG) }
+        if (dmFlagChecks == 0) throw PatchException("No check of the DM gallery flag found")
 
         // The stories and reels gallery passes the Google Photos callback to the
         // album menu only if a MobileConfig flag is on. Force the flag check to true there.
@@ -174,5 +174,25 @@ val systemPhotoPickerPatch = bytecodePatch(
         }
         val flagRegister = albumMenu.method.getInstruction<OneRegisterInstruction>(flagResultIndex).registerA
         albumMenu.method.addInstruction(flagResultIndex + 1, "const/16 v$flagRegister, 0x1")
+    }
+}
+
+/**
+ * Sets the result of every check of [flag] in [method] to true and returns the
+ * number of checks. A check loads the flag id and reads a boolean right after it.
+ * Other uses of the literal are left alone.
+ */
+private fun forceMobileConfigFlag(method: MutableMethod, flag: Long): Int {
+    val literalIndices = method.instructions.withIndex()
+        .filter { (_, instruction) -> (instruction as? WideLiteralInstruction)?.wideLiteral == flag }
+        .map { it.index }
+    // Patch from the end so earlier indices stay valid.
+    return literalIndices.sortedDescending().count { literalIndex ->
+        val resultIndex = (literalIndex + 1..minOf(literalIndex + 4, method.instructions.size - 1)).firstOrNull {
+            method.getInstruction(it).opcode == Opcode.MOVE_RESULT
+        } ?: return@count false
+        val register = method.getInstruction<OneRegisterInstruction>(resultIndex).registerA
+        method.addInstruction(resultIndex + 1, "const/16 v$register, 0x1")
+        true
     }
 }
