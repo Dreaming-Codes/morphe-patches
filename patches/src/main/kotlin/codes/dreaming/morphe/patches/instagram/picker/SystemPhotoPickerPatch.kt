@@ -9,7 +9,9 @@ import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.util.smali.ExternalLabel
 import codes.dreaming.morphe.patches.instagram.Constants.COMPATIBILITY_INSTAGRAM
 import com.android.tools.smali.dexlib2.Opcode
+import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
 import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
+import com.android.tools.smali.dexlib2.iface.reference.FieldReference
 import com.android.tools.smali.dexlib2.iface.reference.MethodReference
 
 private const val EXTENSION_CLASS =
@@ -18,7 +20,7 @@ private const val EXTENSION_CLASS =
 @Suppress("unused")
 val systemPhotoPickerPatch = bytecodePatch(
     name = "Use system photo picker",
-    description = "Adds an entry to the DM gallery album list that opens the Android system photo picker. " +
+    description = "Adds an entry to the DM, stories, and reels gallery album lists that opens the Android system photo picker. " +
         "The picker also shows media from cloud media providers such as Immich.",
     default = true,
 ) {
@@ -81,5 +83,20 @@ val systemPhotoPickerPatch = bytecodePatch(
                 it.parameterTypes.map(CharSequence::toString) == configInit.parameterTypes.map(CharSequence::toString)
         }
         configConstructor.addInstruction(0, "const/16 p6, 0x1")
+
+        // The stories and reels gallery passes the Google Photos callback to the
+        // album menu only if a MobileConfig flag is on. Force the flag check to true there.
+        val creationGallery = CreationGalleryLaunchFingerprint.method.parameterTypes[1].toString()
+        val albumMenu = AlbumMenuGooglePhotosFlagFingerprint.matchAllOrNull().orEmpty().singleOrNull { match ->
+            match.method.instructions.any {
+                ((it as? ReferenceInstruction)?.reference as? FieldReference)?.definingClass == creationGallery
+            }
+        } ?: throw PatchException("No single album menu call reads a field of $creationGallery")
+        val flagIndex = albumMenu.instructionMatches[0].index
+        val flagResultIndex = (flagIndex + 1 until albumMenu.method.instructions.size).first {
+            albumMenu.method.getInstruction(it).opcode == Opcode.MOVE_RESULT
+        }
+        val flagRegister = albumMenu.method.getInstruction<OneRegisterInstruction>(flagResultIndex).registerA
+        albumMenu.method.addInstruction(flagResultIndex + 1, "const/16 v$flagRegister, 0x1")
     }
 }
