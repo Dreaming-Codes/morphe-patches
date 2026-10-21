@@ -46,22 +46,9 @@ object AlbumPickerEntryListFingerprint : Fingerprint(
 )
 
 /**
- * The creation gallery (stories and reels) starts an external picker intent here.
- * In 447.0.0.55.81 this is `X.ES8.A05(Intent, X.ES8)`. The second parameter is
- * the creation gallery controller.
- */
-object CreationGalleryLaunchFingerprint : Fingerprint(
-    accessFlags = listOf(AccessFlags.PUBLIC, AccessFlags.STATIC, AccessFlags.FINAL),
-    returnType = "V",
-    parameters = listOf("Landroid/content/Intent;", "L"),
-    strings = listOf("CreationGalleryController_external_media_source_not_found"),
-)
-
-/**
  * Opens the album menu and passes a Google Photos callback only if a
- * MobileConfig flag is on. In 447.0.0.55.81 the creation gallery does this in
- * `X.PXT.G87`, and the DM gallery does it in `X.E0b.A05`. The patch picks the
- * match that reads a field of the creation gallery controller.
+ * MobileConfig flag is on. In 447.0.0.55.81 the stories and reels gallery does
+ * this in `X.PXT.G87`, and the full-screen creation gallery does it in `X.E0b.A05`.
  */
 object AlbumMenuGooglePhotosFlagFingerprint : Fingerprint(
     filters = listOf(
