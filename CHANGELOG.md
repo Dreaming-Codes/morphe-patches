@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/Dreaming-Codes/morphe-patches/compare/v1.0.0...v1.0.1) (2026-10-21)
+
+### 🐛 Bug Fixes
+
+* **Instagram:** Restore the album picker entry in the post gallery ([b62bdaa](https://github.com/Dreaming-Codes/morphe-patches/commit/b62bdaa70f7070381d83b6b8876f8415c1f25845))
+* **Instagram:** Restore the album picker entry in the post gallery ([#6](https://github.com/Dreaming-Codes/morphe-patches/issues/6)) ([5229821](https://github.com/Dreaming-Codes/morphe-patches/commit/5229821cf441905199227712174524dac72afd17))
+
 ## 1.0.0 (2026-10-21)
 
 ### 🐛 Bug Fixes
