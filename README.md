@@ -9,7 +9,7 @@ Open this link on your phone to add the bundle as a patch source: https://morphe
 ## Patches
 
 <!-- PATCHES_START EXPANDED -->
-> **[v1.0.0-dev.2](https://github.com/Dreaming-Codes/morphe-patches/releases/tag/v1.0.0-dev.2)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;1 patches total
+> **[v1.0.0-dev.3](https://github.com/Dreaming-Codes/morphe-patches/releases/tag/v1.0.0-dev.3)**&nbsp;&nbsp;•&nbsp;&nbsp;`dev`&nbsp;&nbsp;•&nbsp;&nbsp;1 patches total
 <details open>
 <summary>📦 Instagram&nbsp;&nbsp;•&nbsp;&nbsp;1 patch</summary>
 <br>
@@ -21,7 +21,7 @@ Open this link on your phone to add the bundle as a patch source: https://morphe
 
 | 💊&nbsp;Patch | 📜&nbsp;Description | ⚙️&nbsp;Options |
 |----------|----------------|-----------|
-| [Use system photo picker](#use-system-photo-picker) | Adds an entry to the DM, stories, and reels gallery album lists that opens the Android system photo picker. The picker also shows media from cloud media providers such as Immich. |  |
+| [Use system photo picker](#use-system-photo-picker) | Adds an entry to the DM, stories, reels, and full-screen creation gallery album lists that opens the Android system photo picker. The picker also shows media from cloud media providers such as Immich. |  |
 
 </details>
 
@@ -29,13 +29,13 @@ Open this link on your phone to add the bundle as a patch source: https://morphe
 
 ## Use the Instagram photo picker patch
 
-The **Use system photo picker** patch adds a **Photo picker** entry to the album list of the Instagram DM gallery and of the stories and reels creation gallery. The entry opens the Android system photo picker, which also lists media from cloud media providers such as [immich-cloud-media](https://github.com/Dreaming-Codes/immich-cloud-media). Instagram copies the picked file into its own storage before it sends it.
+The **Use system photo picker** patch adds a **Photo picker** entry to the album list of the Instagram DM gallery, the stories and reels creation gallery, and the full-screen creation gallery. The entry opens the Android system photo picker, which also lists media from cloud media providers such as [immich-cloud-media](https://github.com/Dreaming-Codes/immich-cloud-media). Instagram copies the picked file into its own storage before it sends it.
 
 The patch has these limits:
 
-- It covers the DM gallery and the stories and reels creation gallery. Other galleries, such as the feed post gallery, do not show the entry.
+- It covers only the galleries that already have launch and import code for an external picker. Those are the DM gallery, the stories and reels creation gallery, and the full-screen creation gallery. Other galleries, such as the profile picture gallery and the carousel editor, do not show the entry.
 - It targets Instagram 447.0.0.55.81.
-- Nobody has tested it on a device yet. The Morphe CLI applies it to 447.0.0.55.81 without errors.
+- The stories and reels entry works on a Pixel. The other galleries have only been checked in the patched bytecode.
 - Instagram imports a picked item only if the provider reports a known MIME type, such as `image/jpeg` or `video/mp4`.
 
 This bundle does not handle the signature check that Instagram runs after a re-sign. Use it together with [Piko](https://github.com/crimera/piko), which does. To patch Instagram:
